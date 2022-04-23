@@ -8,13 +8,12 @@
     },
     "scripts": {
         "dev": "lite-server",
-        "test": "echo \"Error: no test specified\" && sexit 1"
+        "test": "truffle test"
     },
     "author": "gregory@dappuniversity.com",
     "license": "ISC",
     "devDependencies": {
         "@truffle/contract": "4.5.7",
-        "truffle-contract": "3.0.6",
         "bootstrap": "4.1.3",
         "chai": "^4.1.2",
         "chai-as-promised": "^7.1.1",
