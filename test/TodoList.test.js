@@ -37,6 +37,8 @@ contract('TodoList', (accounts) => {
 
     it('update completeness', async () => {
         const result = await this.todoList.setTaskCompleteness(1, true)
+        const task = await this.todoList.tasks(1)
+        expect(task.completed).to.equal(true)
         const event = result.logs[0]
         expect(event.event).to.equal('TaskUpdated')
         expect(event.args.content).to.equal('1. become a crypto developer')
