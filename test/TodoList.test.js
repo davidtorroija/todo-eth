@@ -31,6 +31,16 @@ contract('TodoList', (accounts) => {
         expect(task.content).to.equal("1. become a crypto developer")
         expect(task.completed).to.equal(false)
         expect(task.id.toNumber()).to.equal(1)
+    })
 
+    it('create new task', async () => {
+        const result = await this.todoList.createTask('some task')
+        const taskCount = (await this.todoList.taskCount()).toNumber()
+        expect(taskCount).to.equal(2)
+        const event = result.logs[0]
+        expect(event.event).to.equal('TaskCreated')
+        expect(event.args.content).to.equal('some task')
+        expect(event.args.completed).to.equal(false)
+        expect(event.args.id.toNumber()).to.equal(2)
     })
 })
