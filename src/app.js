@@ -151,6 +151,18 @@ App = {
         App.setLoading(false);
     }
   },
+  setTaskComplete: async (checkboxItem) => {
+    App.setLoading(true);
+    try {
+        const checked = $(checkboxItem).is(":checked")
+        const result = await App.todoList.setTaskCompleteness(checkboxItem.name, checked, {from: App.account});
+        window.location.reload();
+    } catch (e) {
+        console.log(e)
+    } finally {
+        App.setLoading(false);
+    }
+  },
 }
 
 $(() => {
