@@ -15,15 +15,6 @@ contract('TodoList', (accounts) => {
         expect(address).to.not.equal('');
     })
 
-    it('contract succesfully deployed!', async () => {
-        const address = await this.todoList.address
-        // expect(accounts).toContain(this.todolist.address)
-        expect(address).to.not.equal(0x0);
-        expect(address).to.not.equal(null);
-        expect(address).to.not.equal(undefined);
-        expect(address).to.not.equal('');
-    })
-
     it('todo list tasks', async () => {
         const taskCount = await this.todoList.taskCount()
         const task = await this.todoList.tasks(taskCount)
@@ -42,5 +33,14 @@ contract('TodoList', (accounts) => {
         expect(event.args.content).to.equal('some task')
         expect(event.args.completed).to.equal(false)
         expect(event.args.id.toNumber()).to.equal(2)
+    })
+
+    it('update completeness', async () => {
+        const result = await this.todoList.setTaskCompleteness(1, true)
+        const event = result.logs[0]
+        expect(event.event).to.equal('TaskUpdated')
+        expect(event.args.content).to.equal('1. become a crypto developer')
+        expect(event.args.completed).to.equal(true)
+        expect(event.args.id.toNumber()).to.equal(1)
     })
 })

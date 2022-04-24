@@ -17,13 +17,25 @@ contract TodoList {
         bool completed
     );
 
+    event TaskUpdated(
+        uint id,
+        string content,
+        bool completed
+    );
+
     constructor() public {
         createTask("1. become a crypto developer");
     }
+
     function createTask(string memory _content) public {
         taskCount ++;
         tasks[taskCount] = Task(taskCount, _content, false);
         emit TaskCreated(taskCount, _content, false);
+    }
+
+    function setTaskCompleteness(uint id, bool _completed) public {
+        tasks[id].completed = _completed;
+        emit TaskUpdated(id, tasks[id].content, _completed);
     }
 
 
