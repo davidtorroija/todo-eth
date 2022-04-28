@@ -8,4 +8,4 @@ so once it's deployed for everyone to use that TodoList??
 - rendered all the todos and understanding methods we call as we did in the truffle console but in javascript
 - the firsts tests are working and I'm running through truffle "test" command
 - question: the todo tasks are being saved as a array of the contract, or there are also new blocks on the block chain?
-
+- a new contract that will store the other contract todos, or we have another way to persist data? maybe migrations to copy the old data from old contract to the new deployed one
