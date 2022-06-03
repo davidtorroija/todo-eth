@@ -10,7 +10,7 @@
         "dev": "lite-server",
         "test": "truffle test"
     },
-    "author": "gregory@dappuniversity.com",
+    "author": "davidtorroija@gmail.com",
     "license": "ISC",
     "devDependencies": {
         "@truffle/contract": "4.5.7",
