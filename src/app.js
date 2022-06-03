@@ -1,73 +1,64 @@
 App = {
   loading: false,
   contracts: {},
+  accounts: [],
+  ethProvider: null,
+  connected: false,
+  installed: false,
 
   load: async () => {
-    await App.loadWeb3()
+    await App.loadEthereumProvider()
     await App.loadAccount()
     await App.loadContract()
     await App.render()
   },
 
   // https://medium.com/metamask/https-medium-com-metamask-breaking-change-injecting-web3-7722797916a8
-  loadWeb3: async () => {
-    // Is there an injected web3 instance?
-    // if (typeof web3 !== 'undefined') {
-    //     App.web3Provider = web3.currentProvider;
-    //     web3 = new Web3(web3.currentProvider);
-    // } else {
-    //     // If no injected web3 instance is detected, fallback to Ganache.
-    //     App.web3Provider = new web3.providers.HttpProvider('http://127.0.0.1:7545');
-    //     web3 = new Web3(App.web3Provider);
-    // }
-    if (typeof web3 !== 'undefined') {
-      App.web3Provider = web3.currentProvider
-      web3 = new Web3(web3.currentProvider)
-    } else {
-      window.alert('Please connect to Metamask.')
+  loadEthereumProvider: async () => {
+    App.connected = false;
+    App.installed = false;
+    function isMetaMaskInstalled() {
+        return Boolean(window.ethereum && window.ethereum.isMetaMask);
     }
-    // Modern dapp browsers...
-    if (window.ethereum) {
-      window.web3 = new Web3(ethereum)
-      try {
-        // Request account access if needed
-        await ethereum.enable()
-        // Acccounts now exposed
-        web3.eth.sendTransaction({
-          /* ... */
-        })
-      } catch (error) {
-        // User denied account access...
-      }
+
+    async function isMetaMaskConnected() {
+        const { ethereum } = window;
+        App.accounts = await ethereum.request({method: 'eth_accounts'});
+        return App.accounts && App.accounts.length > 0;
     }
-    // Legacy dapp browsers...
-    else if (window.web3) {
-      App.web3Provider = web3.currentProvider
-      window.web3 = new Web3(web3.currentProvider)
-      // Acccounts always exposed
-      web3.eth.sendTransaction({
-        /* ... */
-      })
+
+    async function initialise() {
+        connected = await isMetaMaskConnected();
+        installed = isMetaMaskInstalled();
+        if (!connected) {
+          alert("please connect to some accounts")
+        }
+        if (installed) {
+          App.ethProvider = window.ethereum;
+        } else {
+          alert("please install metamask!")
+        }
     }
-    // Non-dapp browsers...
-    else {
-      console.log(
-        'Non-Ethereum browser detected. You should consider trying MetaMask!',
-      )
-    }
+
+    await initialise();
+
+    App.ethProvider.on('accountsChanged', async () => {
+        initialise();
+        window.location.reload();
+    });
   },
 
   loadAccount: async () => {
     // Set the current blockchain account
-    App.account = (await web3.eth.getAccounts())[0]
     // web3.eth.defaultAccount = App.account
+    App.selectedAccount = App.accounts[0];
   },
 
   loadContract: async () => {
     // Create a JavaScript version of the smart contract
     const todoList = await $.getJSON('TodoList.json')
     App.contracts.TodoList = TruffleContract(todoList)
-    App.contracts.TodoList.setProvider(App.web3Provider)
+    App.contracts.TodoList.setProvider(App.ethProvider)
 
     // Hydrate the smart contract with values from the blockchain
     App.todoList = await App.contracts.TodoList.deployed()
@@ -83,7 +74,7 @@ App = {
     App.setLoading(true)
 
     // Render Account
-    $('#account').html(App.account)
+    $('#account').html(App.selectedAccount)
 
     // Render Tasks
     await App.renderTasks()
@@ -143,7 +134,7 @@ App = {
     try {
         const newTaskInput = $('#newTask');
         const taskContent = newTaskInput.val();
-        const result = await App.todoList.createTask(taskContent, {from: App.account});
+        const result = await App.todoList.createTask(taskContent, { from: App.selectedAccount });
         window.location.reload();
     } catch (e) {
         console.log(e)
@@ -155,7 +146,7 @@ App = {
     App.setLoading(true);
     try {
         const checked = $(checkboxItem).is(":checked")
-        const result = await App.todoList.setTaskCompleteness(checkboxItem.name, checked, {from: App.account});
+        const result = await App.todoList.setTaskCompleteness(checkboxItem.name, checked, { from: App.selectedAccount });
         window.location.reload();
     } catch (e) {
         console.log(e)
